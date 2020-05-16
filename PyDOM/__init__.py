@@ -7,7 +7,7 @@ __version__ = "0.1.0b0"
 __license__ = "MIT"
 
 __doc__ = """
-See README.md for documentation and CHANGES.md for
+See README.md for documentation and CHANGES.md
 """
 
 FLAG_READ = 2**0
@@ -55,7 +55,7 @@ class DOMFlags(object):
             _print = ""
             _marker = ""
             _value = ""
-            for x in xrange(0, 7):
+            for x in range(0, 8):
                 _print += str(((byteVal >> x) | _mask) - _mask)
                 if bit-1 is x:
                     _marker += "^"
@@ -77,6 +77,13 @@ class DOMFlags(object):
         """
         assert -1 < bit < 8
         assert -1 < value < 2
+
+        # @bug Suddenly, a wild `None` appeared!
+        #   We are not sure why DOMObject.attach() started setting the
+        #   parent flag value to `None`, nor where it is actually doing
+        #   so after an hour stepping through things. Below is the fix.
+        if byteVal == -1:
+            return self.default_flags
 
         _retVal = byteVal
         _bitVal = self.__getbit__(byteVal, bit)
@@ -166,7 +173,7 @@ class DOMFlags(object):
 
         # Is this flag set protected, if not we should set the flags requested.
         if not self.protected:
-            self.__flags__[name] = flags
+            self.__flags__.update({name: flags})
             return True
         raise Exception("cannot add flag, parent locked")
 
@@ -179,7 +186,7 @@ class DOMFlags(object):
         if not self.protected:
             del self.__flags__[name]
             return True
-        raise Exception("cannot add flag, parent locked")
+        raise Exception("cannot delete flag, parent locked")
 
     def update_flag(self, name: str, flags: int) -> bool:
         """ @abstract update a flag to specified flag value
@@ -187,11 +194,10 @@ class DOMFlags(object):
             @param flags [int] Bit mask to set
             @returns [bool] True on success
         """
-        if self.is_writeable(name) and self.has_flag(name):
-            self.__flags__[name] = self.get_flag(name) | flags
+        if not self.protected and self.has_flag(name):
+            self.__flags__[name] = flags
             return True
-        elif self.is_writeable(name):
-            raise KeyError("flag `%s` locked from update" % name)
+        # import pdb; pdb.set_trace()  # breakpoint 1d9b2b3f //
         raise Exception("invalid flag name referenced")
 
 
@@ -272,7 +278,8 @@ class DOMObject(object):
             @param instance [DOMObject] Instance of object to update
             @param parent [DOMObject] Parent instance to point to
         """
-        instance.__flags__.set_flag("parent", 0 | FLAG_READ | FLAG_WRITE)
+        # instance.__flags__.set_flag("parent", 0 | FLAG_READ | FLAG_WRITE)
+        instance.__flags__.unlock("parent")
         instance.parent = parent
         instance.__flags__.lock("parent")
 
