@@ -1,0 +1,6 @@
+.sublime/
+.idea/
+*.sublime-workspace
+*.sublime-project
+*.pyc
+**/__pycache__/
