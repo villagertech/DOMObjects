@@ -1,3 +1,14 @@
+* v0.1.0b1 - Addition of features
+            DOMSchema: Class object for large data structure
+            DOMObject.build_schema: Finalized building of schema objects
+        Major Updates
+            Refactored DOMFlag->PyDOM.flags.DOMFlags
+        Updates
+            Updated documentation in PyDOM.flags
+        Fixes
+            DictGroup.__init__: assignment of parent triggered "flag locked" error
+            Misc minor bug fixes
+
 * v0.1.0b - Addition of features
             DOMObject.new_dictgroup: Dict object child type
             DOMObject.del_property: Added reflexive removal of a property

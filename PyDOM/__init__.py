@@ -3,202 +3,31 @@ from collections.abc import MutableMapping
 __author__ = "Rob MacKinnon <rome@villagertech.com>"
 __package__ = "PyDOM"
 __name__ = "__init__"
-__version__ = "0.1.0b0"
+__version__ = "0.1.0b1"
 __license__ = "MIT"
 
 __doc__ = """
 See README.md for documentation and CHANGES.md
 """
 
-FLAG_READ = 2**0
-FLAG_WRITE = 2**1
-FLAG_NAMESPACE = 2**2
-FLAG_RESERVED_8 = 2**3
-FLAG_RESERVED_16 = 2**4
-FLAG_RESERVED_32 = 2**5
-FLAG_RESERVED_64 = 2**6
-FLAG_RESERVED_128 = 2**7
+from .flags import (
+    DOMFlags,
+    FLAG_READ,
+    FLAG_WRITE,
+    FLAG_NAMESPACE,
+    FLAG_RESERVED_8,
+    FLAG_RESERVED_16,
+    FLAG_RESERVED_32,
+    FLAG_RESERVED_64,
+    FLAG_RESERVED_128
+)
 
+from .schema import (
+    DOMSchema
+)
+
+# INTERNAL DEBUGGING FLAG, not for production consumption.
 DEBUG = 0
-
-
-class DOMFlags(object):
-    """ @abstract Class object for holding user definable flags for DOM Objects
-    """
-    def __init__(self):
-        """ @abstract Object initializer and bootstraps first object.
-        """
-        self.__flags__ = {}
-        self.default_flags = 0 | FLAG_READ | FLAG_WRITE
-        self.__flags__["self"] = self.default_flags
-
-    def __hasbit__(self, byteVal: int, bit: int = 0) -> bool:
-        """ @abstract Private method to test if bit flag is set.
-            @param byteVal [int] Binary flag set
-            @param bit [int] Bit position to check true
-            @returns [bool] True if bit value is 1
-        """
-        if DEBUG is 1:
-            print("1?"+str(self.__getbit__(byteVal, bit))+" "+str(self.__getbit__(byteVal, bit) is 1))
-        return self.__getbit__(byteVal, bit) is 1
-
-    def __getbit__(self, byteVal: int, bit: int = 0) -> int:
-        """ @abstract Returns the value of selected bit via bitwise operation
-            @param byteVal [int] Binary flag set
-            @param bit [int] Bit position to return
-            @returns [int] 0|1 of value at bit position
-        """
-        assert 0 <= bit < 8
-        _mask = 254
-
-        if DEBUG is 1:
-            _print = ""
-            _marker = ""
-            _value = ""
-            for x in range(0, 8):
-                _print += str(((byteVal >> x) | _mask) - _mask)
-                if bit-1 is x:
-                    _marker += "^"
-                    _value += str(bit)
-                else:
-                    _marker += " "
-                    _value += " "
-            print(_print)
-            print(_marker)
-            print(_value)
-        return ((byteVal >> bit-1) | _mask) - _mask
-
-    def __setbit__(self, byteVal: int, bit: int = 0, value: int = 0) -> int:
-        """ @abstract Set explicit bit value of flag
-            @param byteVal [int] Byte value to modify
-            @param bit [int] Bit position alter
-            @param value [int] 0|1 value to alter to
-            @returns [int] 0|1 of value at bit position
-        """
-        assert -1 < bit < 8
-        assert -1 < value < 2
-
-        # @bug Suddenly, a wild `None` appeared!
-        #   We are not sure why DOMObject.attach() started setting the
-        #   parent flag value to `None`, nor where it is actually doing
-        #   so after an hour stepping through things. Below is the fix.
-        if byteVal == -1:
-            return self.default_flags
-
-        _retVal = byteVal
-        _bitVal = self.__getbit__(byteVal, bit)
-        if _bitVal == value:
-            # NOP
-            pass
-        elif _bitVal < value:
-            _retVal = byteVal | 2**bit
-        elif _bitVal > value:
-            _retVal = byteVal - 2**bit
-        else:
-            raise Exception("we got somewhere we shouldn't have")
-        return _retVal
-
-    def has_flag(self, name: str) -> bool:
-        """ @abstract Checks if `name` is a valid flag
-            @param name [str] Flag key name to resolve
-            @returns [bool] True on found/existing
-        """
-        return name in self.__flags__.keys()
-
-    @property
-    def protected(self) -> bool:
-        """ @abstract Returns whether the parent is currently protected
-            @returns [bool] True if write flag is 0
-        """
-        return not self.is_writeable(name="self")
-
-    def is_writeable(self, name: str = "self") -> bool:
-        """ @abstract Returns whether the object is currently protected
-            @returns [bool] True if write flag is 1
-        """
-        if not self.has_flag(name):
-            raise Exception("invalid flag name `%s` referenced" % name)
-        if DEBUG is 1:
-            print("hasbit="+str(self.__hasbit__(self.__flags__[name],
-                                FLAG_WRITE)))
-        return self.__hasbit__(self.__flags__[name], FLAG_WRITE)
-
-    def lock(self, name: str = "self") -> None:
-        """ @abstract Set the writeable flag to readonly
-            @param name [str] Flag name
-            @returns [None]
-        """
-        if not self.has_flag(name):
-            raise Exception("invalid flag name referenced")
-        self.__flags__[name] = self.__setbit__(self.__flags__[name],
-                                               FLAG_WRITE, 0)
-
-    def unlock(self, name: str = "self") -> None:
-        """ @abstract Set the writeable flag to readonly
-            @param name [str] Flag name
-            @returns [None]
-        """
-        if not self.has_flag(name):
-            raise KeyError("invalid flag name referenced")
-        self.__flags__[name] = self.__setbit__(self.__flags__[name],
-                                               FLAG_WRITE, 1)
-
-    def test_bit(self, name: str, flag: int) -> bool:
-        """ @abstract Boolean test for flag currently set
-            @param name [str; Flag name
-            @param flag [int] Bit position or FLAG_xxxxx global
-            @returns [bool] True is requested value is set
-        """
-        return self.__hasbit__(self.get_flag(name), flag)
-
-    def get_flag(self, name: str) -> int:
-        """ @abstract Return the value of flag
-            @param name:   str; flag name
-            @returns [int] Byte value of flag set
-        """
-        if not self.has_flag(name):
-            raise Exception("invalid flag name referenced")
-        return self.__flags__[name]
-
-    def set_flag(self, name: str, flags: int = 0) -> bool:
-        """ @abstract Set a new flag with a specific bit flag
-            @param name [str] Flag name
-            @param flags [int] #optional Bit mask to set to
-            @returns [bool] True on success
-        """
-        # Check to see if this flag already exists
-        if self.has_flag(name):
-            # flag name already exists, update instead
-            return self.update_flag(name, flags)
-
-        # Is this flag set protected, if not we should set the flags requested.
-        if not self.protected:
-            self.__flags__.update({name: flags})
-            return True
-        raise Exception("cannot add flag, parent locked")
-
-    def del_flag(self, name: str) -> bool:
-        """ @abstract Remove a flag
-            @param name [str] Flag name
-            @returns [bool] True on success
-        """
-        # Is this flag set protected, if not we should set the flags requested.
-        if not self.protected:
-            del self.__flags__[name]
-            return True
-        raise Exception("cannot delete flag, parent locked")
-
-    def update_flag(self, name: str, flags: int) -> bool:
-        """ @abstract update a flag to specified flag value
-            @param name [str] Flag name
-            @param flags [int] Bit mask to set
-            @returns [bool] True on success
-        """
-        if not self.protected and self.has_flag(name):
-            self.__flags__[name] = flags
-            return True
-        # import pdb; pdb.set_trace()  # breakpoint 1d9b2b3f //
-        raise Exception("invalid flag name referenced")
 
 
 class DOMObject(object):
@@ -233,7 +62,7 @@ class DOMObject(object):
             self.__store__[name] = value
             self.__flags__.set_flag(name=name, flags=0 | FLAG_READ | FLAG_WRITE)
         elif self.__protected__ or not self.__flags__.is_writeable(name):
-            raise KeyError("node rights are locked")
+            raise KeyError("node rights for `%s` are locked" % name)
         else:
             raise(KeyError("property `%s` not set" % name))
 
@@ -253,6 +82,14 @@ class DOMObject(object):
             @returns [DOMObject] New anonymous object
         """
         _instance = super(DOMObject, cls).__new__(DOMObject)
+        _instance.__init__(name)
+        return _instance
+
+    def __new_dictgroup__(cls, name) -> object:
+        """ @abstract Anonymous new child DOMObject
+            @returns [DOMObject] New anonymous object
+        """
+        _instance = super(DictGroup, cls).__new__(DictGroup)
         _instance.__init__(name)
         return _instance
 
@@ -278,7 +115,6 @@ class DOMObject(object):
             @param instance [DOMObject] Instance of object to update
             @param parent [DOMObject] Parent instance to point to
         """
-        # instance.__flags__.set_flag("parent", 0 | FLAG_READ | FLAG_WRITE)
         instance.__flags__.unlock("parent")
         instance.parent = parent
         instance.__flags__.lock("parent")
@@ -459,7 +295,7 @@ class DOMObject(object):
         """
         if not self.__name_exists__(propName):
             raise(AssertionError("property '%s' does not exist" % propName))
-        assert (self.__flags__.test_bit(propName, FLAG_READ) is True)
+        assert (self.__flags__.test_bit(propName, FLAG_WRITE) is True)
         self.__store__[propName] = propValue
 
     def get_property(self, propName: str) -> object:
@@ -504,7 +340,6 @@ class DOMObject(object):
         if self.__name_exists__(name):
             raise(AssertionError("child '%s' exists" % name))
         _instance = self.__new_child__(name)
-        self.__update_parent__(instance=_instance, parent=self)
         self.attach(name=name, obj=_instance)
 
     def del_child(self, name: str) -> None:
@@ -580,7 +415,7 @@ class DOMObject(object):
         for _n in nameList:
             self.new_dictgroup(_n)
 
-    def build_schema(self, schema_map: list = []) -> None:
+    def build_prop_map(self, schema_map: list = []) -> None:
         """ @abstract Build a property tree from a defined schema and name map.
                 This is designed for properties values only.
             @param schema_map [list] List of tuples, defining dict, and child
@@ -589,11 +424,13 @@ class DOMObject(object):
 
             @example Object Schema and Mapping [dict]
             schema = {
-                "<attribute_name>": {
-                    "cast": <type>,
-                    "default": <value>
-                    "values": [<value>, ...]
-                    "validate_callback": <callable>
+                "<child_name>": {
+                    "<attribute_name>": {
+                        "cast": <type>,
+                        "default": <value>
+                        "values": [<value>, ...]
+                        "validate_callback": <callable>
+                    }
                 }
             }
 
@@ -614,7 +451,67 @@ class DOMObject(object):
                 if "default" in _map[_key]:
                     _value = _map[_key]["default"]
 
-                _ctx.add_property(_key, _value)
+                _ctx.new_property(_key, _value)
+
+    def build_schema(self, schemaObj: DOMSchema) -> None:
+        """ @abstract Build an object based on the structure stated
+                by the schema object.
+            @param schemaObj [DOMSchema] Structure to create.
+            @returns [None]
+        """
+        def __build_props(propDict: dict,
+                          ctx: object) -> None:
+            """ @abstract Wrapper for contextual `build_prop_map`"""
+            ctx.build_prop_map([(propDict, None)])
+
+        def __build_dictgroup(groupDict: list,
+                              ctx: object) -> None:
+            """ @abstract Wrapper for contextual `new_dictgroup_bulk`"""
+            ctx.new_dictgroup_bulk(groupDict)
+
+        def __build_children(childDict: list,
+                             ctx: object) -> None:
+            """ @abstract Wrapper for contextual `new_child_bulk`"""
+            ctx.new_child_bulk(childDict)
+
+        def __recurse(node: dict,
+                      workType: str = None,
+                      ctx: object = None) -> None:
+            """ @abstract Recurse builder of schema objects
+                @params node [dict] object containing key name level
+                @params workType
+            """
+            _recurseWork = {
+                "children": __build_children,
+                "dictgroups": __build_dictgroup,
+                "props": __build_props
+            }
+
+            # generate all the keys of type(x) in the node
+            if ((workType is not None) and
+                (workType in ["children", "dictgroups"])):
+                _recurseWork[workType](node.keys(), ctx)
+
+                for _key in node:
+                    for _recWorkType in _recurseWork:
+                        if _recWorkType in node[_key]:
+                            __recurse(ctx=ctx.get_context(_key),
+                                      node=node[_key][_recWorkType],
+                                      workType=_recWorkType)
+            elif ((workType is not None) and
+                  (workType is "props")):
+                # Props is a leaf node
+                _recurseWork[workType](node, ctx)
+
+            else:
+                # workType is None or not in ["children", "dictgroups", "props"]
+                pass
+
+        __recurse(ctx=self, node=schemaObj.children, workType="children")
+        __recurse(ctx=self, node=schemaObj.dictgroups, workType="dictgroups")
+
+        if len(schemaObj.props.keys()) > 0:
+            __build_props(schemaObj.props, self)
 
 
 class DOMRootObject(DOMObject):
@@ -629,14 +526,12 @@ class DictGroup(MutableMapping, DOMObject):
         @param parent [DOMObject] Assign a parent object
         @param name [str] Object unique name
     """
-    def __init__(self, parent: DOMObject = None, name: str = ""):
+    def __init__(self, parent: object = None, name: str = ""):
         super(DictGroup, self).__init__(name)
 
         if parent.__name_exists__(name):
             raise(AssertionError("child '%s' exists at parent." % name))
-        self.__flags__.set_flag("parent", 0 | FLAG_READ | FLAG_WRITE)
-        self.parent = parent
-        self.__flags__.lock("parent")
+        object.__setattr__(self, "parent", parent)
         self.__keystore__ = dict()
 
     def __getitem__(self, key: str) -> object:
@@ -688,36 +583,36 @@ class DictGroup(MutableMapping, DOMObject):
         """
         return self.__keystore__.keys()
 
-    def attach(self, key: str = None,
+    def attach(self, name: str = None,
                obj: object = None,
                flags: int = 0 | FLAG_READ | FLAG_WRITE) -> None:
         """ @abstract Override of DOMObject.attach
-            @param key [str] dict key name
+            @param name [str] dict key name
             @param obj [object] callable/referable object
             @param flags [byte] byte mask of flags
             @returns [None]
         """
         assert not self.__flags__.protected
-        assert not self.__name_exists__(key)
+        assert not self.__name_exists__(name)
 
         if isinstance(obj, DOMObject):
             self.__update_parent__(instance=obj, parent=self)
 
-        self.update({key: obj})
-        self.__store__[key] = self.__keystore__[key]
-        self.__children__.append(key)
-        self.__flags__.set_flag(key, flags)
+        self.update({name: obj})
+        self.__store__[name] = self.__keystore__[name]
+        self.__children__.append(name)
+        self.__flags__.set_flag(name, flags)
 
-    def detach(self, key: str) -> None:
+    def detach(self, name: str) -> None:
         """ @abstract Override of DOMObject.deattach
-            @param key [str] dict child object name
+            @param name [str] dict child object name
             @returns [None]
         """
         assert not self.__flags__.protected
-        assert self.__name_exists__(key)
-        del self.__store__[key]
-        del self.__keystore__[key]
-        self.__children__.remove(key)
+        assert self.__name_exists__(name)
+        del self.__store__[name]
+        del self.__keystore__[name]
+        self.__children__.remove(name)
 
     def update(self, *args, **kwargs) -> None:
         """ @abstract Override for dict.update, manages DOMObjects better
