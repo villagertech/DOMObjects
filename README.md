@@ -57,8 +57,8 @@ namespace object and are the base structure to build your datastructure on.
 ## Children
 Out of the box, a root object comes empty, plain and boring. Start by adding
 some children by using the `new_child` method. Once created it can be
-referenced and operated on. Children can also be referenced as a context, as
-see further in this example.
+referenced and operated on. Children can also be referenced by context, as
+seen further in this example.
 ```
     ROOT.new_child("first_born")
     ROOT.first_born.name
@@ -102,16 +102,17 @@ with the same parent.
 ## Namespaces
 From a parent object calling the `new_namespace()` method will create a child
 with the `FLAG_NAMESPACE` bit flag set. This flag manages the ability of
-children to perform path traversal upward and limits them to the namespace
-space node where parent node reference is limited. Namespaces names do not have
-to conform to standard Python object name limitations. This style of child
-require the use of the `get_context` method for operation.
+children to perform path traversal upward and limits them to within their own namespace.
+Namespaces names do not have to conform to standard Python object name limitations.
+To operate on this child type, use the `get_context` method on the parent object to retrieve it.
 
 ```
     ROOT.new_namespace("new_namespace_object")
     ROOT.new_namespace("{b52702e0-1513-4201-82df-592c05ee7a02}")
     context1 = ROOT.get_context("new_namespace_object")
     context2 = ROOT.get_context("{b52702e0-1513-4201-82df-592c05ee7a02}")
+    context1.parent
+    >>> None
 ```
 
 ## DictGroups
@@ -142,13 +143,13 @@ static and dynamic value types can be found.
     def demo_def(value):
         return 1+value
 
-    ROOT.add_property("value", 1)
+    ROOT.new_property("value", 1)
     ROOT.value
     >>> 1
-    ROOT.add_property("dynamic_call", demo_def)
+    ROOT.new_property("dynamic_call", demo_def)
     ROOT.dynamic_call(1)
     >>> 2
-    ROOT.add_property("dynamic_value", demo_def(3))
+    ROOT.new_property("dynamic_value", demo_def(3))
     ROOT.dynamic_value
     >>> 4
 ```
@@ -170,46 +171,70 @@ value of `None` is assigned.
     >>> "with_value"
 ```
 
-## Building Large Datastructures (v0.1.0 beta)
+## Building Large Datastructures (new as of v0.1.0 beta1)
 Bootstrapping properties in a datastructures with PyDOM is made easier by using
-the `build_schema` method. Simply reference the schema by the method, and the
-properties are automatically created for referenced object as the defined cast
-and default value. More advanced datastructures can be created with this
-method.
-__NOTE__: This feature is subject to change.
-
+the `build_schema` method and `DOMSchema` objects. Start by creating an schema
+object, and giving it some structure.
 ```
-    schema = {
+    schema = DOMSchema()
+    schema.children = {
         "child_1": {
-            "A": {
-                "cast": int,
-                "default": 1
-            },
-            "B": {
-                "cast": str,
-                "default": "string value for child 1"
-            }
+        	"props": {
+			    "A": {
+				"cast": int,
+				"default": 1
+			    },
+			    "B": {
+				"cast": str,
+				"default": "string value for child 1"
+			    }
+		}
         },
         "child_2": {
-            "A": {
-                "cast": int,
-                "default": 2
-            },
-            "B": {
-                "cast": str,
-                "default": "string value for child 2"
-            }
+        	"props": {
+        		"A": {
+        			"cast": int,
+        			"default": 2
+        		}
+        	},
+        	"children": {
+			"subchild_1": {},
+			"subchild_2": {},
+			"subchild_3": {}
+        	}
         },
     }
-    schema_map = [
-        (schema["child_1"], "child_1"),
-        (schema["child_2"], "child_2"),
-    ]
-    ROOT.build_schema(schema_map=schema_map)
+    schema.dictgroups = {
+    	"group_1": {}
+    	"group_2": {
+    		"children": {
+			"subchild_1": {
+				"props": {
+					"A": {
+						"cast": int,
+						"default": 3
+					}
+				}
+			},
+			"subchild_2": {},
+			"subchild_3": {}
+    		}
+	}
+    }	
+```
+Next generate the above schema. To do so, call the `build_schema` method on the required context.
+In this example, we'll use the root object.
+
+```
+    ROOT.build_schema(schema)
     ROOT.child_1.A
     >>> 1
     ROOT.child_2.A
     >>> 2
+    ROOT.group_2.children
+    >>> ["subchild_1","subchild_2","subchild_3"]
+    ROOT.group_2["subchild_1"].A
+    >>> 3
 ```
 
 ## Attribute and Property Flags
