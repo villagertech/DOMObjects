@@ -172,6 +172,13 @@ value of `None` is assigned.
 ```
 
 ## Building Large Datastructures (new as of v0.1.0 beta1)
+Bootstrapping properties in a datastructures with PyDOM is made easier by using
+the `build_schema` method and `DOMSchema` objects. Start by creating an schema
+object, and giving it some structure.
+```
+    schema = DOMSchema()
+    schema.children = {
+## Building Large Datastructures (new as of v0.1.0 beta1)
 Bootstrapping properties for datastructures with PyDOM is made easier by using
 the DOMObject's `build_schema` method and `DOMSchema` objects. Start by creating an schema
 object, and giving it some structure.
@@ -204,6 +211,29 @@ object, and giving it some structure.
         	}
         },
     }
+    schema.dictgroups = {
+    	"group_1": {}
+    	"group_2": {
+    		"children": {
+			"subchild_1": {
+				"props": {
+					"A": {
+						"cast": int,
+						"default": 3
+					}
+				}
+			},
+			"subchild_2": {},
+			"subchild_3": {}
+    		}
+	}
+    }	
+```
+Next generate the above schema. To do so, call the `build_schema` method on the required context.
+In this example, we'll use the root object.
+
+```
+    ROOT.build_schema(schema)
     schemaB.dictgroups = {
     	"group_1": {}
     	"group_2": {
