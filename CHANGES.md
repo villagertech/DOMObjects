@@ -2,7 +2,7 @@
             DOMSchema: Class object for large data structure
             DOMObject.build_schema: Finalized building of schema objects
         Major Updates
-            Refactored DOMFlag->PyDOM.flags.DOMFlags
+            Re-factored DOMFlag->PyDOM.flags.DOMFlags
         Updates
             Updated documentation in PyDOM.flags
         Fixes
