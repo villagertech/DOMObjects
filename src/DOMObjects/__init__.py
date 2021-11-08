@@ -1,9 +1,10 @@
 from collections.abc import MutableMapping
+from warnings import warn
 
 __author__ = "Rob MacKinnon <rome@villagertech.com>"
-__package__ = "PyDOM"
+__package__ = "DOMObjects"
 __name__ = "__init__"
-__version__ = "0.1.0b1"
+__version__ = "0.1.0b3"
 __license__ = "MIT"
 
 __doc__ = """
@@ -106,7 +107,7 @@ class DOMObject(object):
             @param name [str] DOM object name
             @returns [bool] True on exists
         """
-        if DEBUG is 1:
+        if DEBUG == 1:
             print("name exists '%s' = %s" % (name, name in self.__store__))
         return name in self.__store__
 
@@ -137,7 +138,7 @@ class DOMObject(object):
             _siblings = list(self.parent.children)
             _siblings.remove(self.name)
             _siblings.sort()
-            if DEBUG is 1:
+            if DEBUG == 1:
                 print("self.name='%s'" % self.name)
                 print("parent.children=%s" % self.parent.children)
                 print("siblings(%s)=%s" % (type(_siblings), _siblings))
@@ -173,7 +174,7 @@ class DOMObject(object):
             @returns [dict] Static dictionary object
         """
         _children = self.__children__
-        if props is None:
+        if props == None:
             _propNames = self.__properties__
         else:
             _propNames = props
@@ -294,9 +295,11 @@ class DOMObject(object):
             @returns [None]
         """
         if not self.__name_exists__(propName):
-            raise(AssertionError("property '%s' does not exist" % propName))
-        assert (self.__flags__.test_bit(propName, FLAG_WRITE) is True)
-        self.__store__[propName] = propValue
+            warn("Attempted to set non-existent property '%s', running `new_property` method." % propName)
+            self.new_property(propName, propValue)
+        else:
+            assert (self.__flags__.test_bit(propName, FLAG_WRITE) is True)
+            self.__store__[propName] = propValue
 
     def get_property(self, propName: str) -> object:
         """ @abstract Retrieve a specific property by name.
@@ -387,13 +390,18 @@ class DOMObject(object):
 
     def get_context(self, name: str = None) -> object:
         """ @abstract Get the context of a specific context
-            @param name [str] Named contexted to return
+            @param name [str] Named contexted and path to return from object
             @returns [DOMObject] Node object of child
         """
         if name is None:
             return self
-        assert self.__name_exists__(name)
-        return self.__store__[name]
+        if "." in name:
+            _keys = name.split('.')
+            assert self.__name_exists__(_keys[0])
+            return self.__store__[_keys[0]].get_context('.'.join(_keys[1:]))
+        else:
+            assert self.__name_exists__(name)
+            return self.__store__[name]
 
     def new_dictgroup(self, name: str) -> None:
         """ @abstract Add child object to tree
@@ -488,7 +496,7 @@ class DOMObject(object):
             }
 
             # generate all the keys of type(x) in the node
-            if ((workType is not None) and
+            if ((workType != None) and
                 (workType in ["children", "dictgroups"])):
                 _recurseWork[workType](node.keys(), ctx)
 
@@ -498,14 +506,14 @@ class DOMObject(object):
                             __recurse(ctx=ctx.get_context(_key),
                                       node=node[_key][_recWorkType],
                                       workType=_recWorkType)
-            elif ((workType is not None) and
-                  (workType is "props")):
+            elif ((workType != None) and
+                  (workType == "props")):
                 # Props is a leaf node
                 _recurseWork[workType](node, ctx)
 
             else:
                 # workType is None or not in ["children", "dictgroups", "props"]
-                pass
+                warn("Schema key `%s` not supported." % _workType)
 
         __recurse(ctx=self, node=schemaObj.children, workType="children")
         __recurse(ctx=self, node=schemaObj.dictgroups, workType="dictgroups")
@@ -609,10 +617,12 @@ class DictGroup(MutableMapping, DOMObject):
             @returns [None]
         """
         assert not self.__flags__.protected
-        assert self.__name_exists__(name)
-        del self.__store__[name]
+        assert self.__contains__(name)
+        if name in self.__store__:
+            del self.__store__[name]
         del self.__keystore__[name]
-        self.__children__.remove(name)
+        if name in self.__children__:
+            self.__children__.remove(name)
 
     def update(self, *args, **kwargs) -> None:
         """ @abstract Override for dict.update, manages DOMObjects better

@@ -1,3 +1,11 @@
+* v0.1.0b3 - Project renamed to DOMObjects
+            Project: renamed to avoid contflicting project name
+            DictGroup: Key name management bug corrected
+            Pypi: pyproject.toml added, and general project directory restructure.
+
+* v0.1.0b2 - Additional features
+            DOMSchema.keys: Returns all top-level keys
+
 * v0.1.0b1 - Addition of features
             DOMSchema: Class object for large data structure
             DOMObject.build_schema: Finalized building of schema objects

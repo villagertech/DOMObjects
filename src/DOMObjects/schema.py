@@ -1,6 +1,6 @@
 __author__ = "Rob MacKinnon <rome@villagertech.com>"
-__package__ = "PyDOM"
-__name__ = "PyDOM.schema"
+__package__ = "DOMObjects"
+__name__ = "DOMObjects.schema"
 __license__ = "MIT"
 
 
@@ -34,3 +34,14 @@ class DOMSchema(object):
         self.dictgroups = dictgroups
         self.children = children
         self.props = props
+
+    @property
+    def keys(self) -> list:
+        """ @abstract Returns all top-level keys in schema
+            @returns [list] of keys
+        """
+        _keys = list()
+        _keys.extend(self.children.keys())
+        _keys.extend(self.dictgroups.keys())
+        _keys.extend(self.props.keys())
+        return _keys

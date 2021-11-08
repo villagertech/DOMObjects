@@ -1,6 +1,6 @@
 __author__ = "Rob MacKinnon <rome@villagertech.com>"
-__package__ = "PyDOM"
-__name__ = "PyDOM.flags"
+__package__ = "DOMObjects"
+__name__ = "DOMObjects.flags"
 __license__ = "MIT"
 
 DEBUG = 0

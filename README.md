@@ -1,6 +1,6 @@
-# PyDOM v0.1.0
+# DOMObjects v0.1.0
 ## About
-PyDOM is designed to create flexible data structures that allows users to
+DOMObjects is designed to create flexible data structures that allows users to
 easily traverse to siblings or parents. The datastructure modeled should be
 some what familiar compared to the Javascript DOM object structure.
 
@@ -44,14 +44,14 @@ output, and evaluateable callable objects can be attached to the object tree.
     print(ROOT.preDefProp)
 ```
 
-# Using PyDOM
+# Using DOMObjects
 ## Getting Started
-Import `PyDOM` and create a root object. Root objects consist of the top level
+Import `DOMObjects` and create a root object. Root objects consist of the top level
 namespace object and are the base structure to build your datastructure on.
 ```
-    import PyDOM
+    import DOMobjects
 
-    ROOT = PyDOM.DOMRootObject()
+    ROOT = DOMobjects.DOMRootObject()
 ```
 
 ## Children
@@ -130,7 +130,7 @@ user friendly iterable group.
     ROOT.group["A"].siblings
     >>> ["B", "C"]
 ```
-    
+
 ## Properties
 Property management for a child generally should not be expensive. Adding,
 removing, setting, and getting can be easily achieved with the built-in methods
@@ -143,6 +143,8 @@ static and dynamic value types can be found.
     def demo_def(value):
         return 1+value
 
+    demo_list = ['1', '2', '3']
+
     ROOT.new_property("value", 1)
     ROOT.value
     >>> 1
@@ -152,6 +154,7 @@ static and dynamic value types can be found.
     ROOT.new_property("dynamic_value", demo_def(3))
     ROOT.dynamic_value
     >>> 4
+    ROOT.new_property(
 ```
 
 ### Bulk Properties

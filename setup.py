@@ -6,7 +6,7 @@ import codecs
 import os
 import sys
 
-import PyDOM
+import DOMObjects
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -37,20 +37,26 @@ class PyTest(TestCommand):
 
 
 setup(
-    name='PyDOM',
-    version=PyDOM.__version__,
-    url='https://github.com/villagertech/PyDOM',
+    name='DOMObjects',
+    version=DOMObjects.__version__,
+    url='https://github.com/villagertech/DOMObjects',
+    project_urls={
+        "Bug Tracker": 'https://github.com/villagertech/DOMObjects/issues'
+    },
     license='MIT',
     author='Rob MacKinnon',
     author_email='rome@villagertech.com',
+    python_requires=">=3.6",
+    platforms='any',
     tests_require=['pytest'],
     install_requires=[],
     cmdclass={'test': PyTest},
     description='Create Python DOM style datastructures with ease.',
     long_description=long_description,
-    packages=['PyDOM'],
+    packages=['DOMObjects'],
+    package_dir={"": "src"},
+    packages=setuptools.find_packages(where="src"),
     include_package_data=True,
-    platforms='any',
     test_suite='',
     classifiers=[
         'Programming Language :: Python',
