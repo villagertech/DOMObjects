@@ -1,3 +1,6 @@
+* v0.1.0b4 - DOMObject.new_method: Addition of dynamic properties
+            DOMObject.set_method: Addition of dynamic properties
+
 * v0.1.0b3 - Project renamed to DOMObjects
             Project: renamed to avoid contflicting project name
             DictGroup: Key name management bug corrected

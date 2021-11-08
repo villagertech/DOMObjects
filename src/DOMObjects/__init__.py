@@ -263,9 +263,9 @@ class DOMObject(object):
     def new_property(self, propName: str,
                      propValue: object,
                      flags: int = 0 | FLAG_READ | FLAG_WRITE) -> None:
-        """ @abstract Add property to self
-            @param name [str] DOM property name
-            @param obj [object] valued object
+        """ @abstract Add a static property to self
+            @param propName [str] DOM property name
+            @param propValue [object] valued object
             @param flags [byte] byte mask of flags
             @returns [None]
         """
@@ -300,6 +300,41 @@ class DOMObject(object):
         else:
             assert (self.__flags__.test_bit(propName, FLAG_WRITE) is True)
             self.__store__[propName] = propValue
+
+    def new_method(self, name: str,
+                     method: object,
+                     margs: list = [],
+                     mkwargs: list = {},
+                     flags: int = 0 | FLAG_READ | FLAG_WRITE) -> None:
+        """ @abstract Add a property method to self
+            @param name [str] DOM property name
+            @param method [object] Method to attach
+            @param margs [list] Method arguments to pass
+            @param flags [byte] byte mask of flags
+            @returns [None]
+        """
+        assert (not self.__flags__.protected)
+        if self.__name_exists__(name):
+            raise(AssertionError("property method '%s' exists" % name))
+        self.__store__.update({name: lambda: method(*margs, **mkwargs)})
+        self.__properties__.append(name)
+        self.__flags__.set_flag(name, flags)
+
+    def set_method(self, name: str,
+                   method: object,
+                   margs: list, mkwargs: dict) -> None:
+        """ @abstract Set the value of a property method by name
+            @param name [str] DOM property name
+            @param method [object] Method to attach
+            @param margs [list] Method arguments to pass
+            @returns [None]
+        """
+        if not self.__name_exists__(name):
+            warn("Attempted to set non-existent property method '%s', running `new_method` method." % name)
+            self.new_method(*args, **kwargs)
+        else:
+            assert (self.__flags__.test_bit(name, FLAG_WRITE) is True)
+            self.__store__[name] = lambda: method(*margs, **mkwargs)
 
     def get_property(self, propName: str) -> object:
         """ @abstract Retrieve a specific property by name.
