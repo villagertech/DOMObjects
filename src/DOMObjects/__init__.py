@@ -4,7 +4,7 @@ from warnings import warn
 __author__ = "Rob MacKinnon <rome@villagertech.com>"
 __package__ = "DOMObjects"
 __name__ = "__init__"
-__version__ = "0.1.0b3"
+__version__ = "0.1.0b4"
 __license__ = "MIT"
 
 __doc__ = """

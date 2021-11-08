@@ -6,8 +6,6 @@ import codecs
 import os
 import sys
 
-import DOMObjects
-
 here = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -38,7 +36,7 @@ class PyTest(TestCommand):
 
 setup(
     name='DOMObjects',
-    version=DOMObjects.__version__,
+    version='v0.1.0b4'
     url='https://github.com/villagertech/DOMObjects',
     project_urls={
         "Bug Tracker": 'https://github.com/villagertech/DOMObjects/issues'
