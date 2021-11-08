@@ -53,7 +53,6 @@ setup(
     cmdclass={'test': PyTest},
     description='Create Python DOM style datastructures with ease.',
     long_description=long_description,
-    packages=['DOMObjects'],
     package_dir={"": "src"},
     packages=setuptools.find_packages(where="src"),
     include_package_data=True,
