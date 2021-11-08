@@ -134,16 +134,15 @@ user friendly iterable group.
 ## Properties
 Property management for a child generally should not be expensive. Adding,
 removing, setting, and getting can be easily achieved with the built-in methods
-`new_property`, `del_property`, `set_property`, and `get_property`. Properties
-have the special feature of referencing any kind of object type. They can be
-static or dynamic values. Like namespacing, the naming convention does not
-have to follow Python object name limitation. In the following example, both
-static and dynamic value types can be found.
+`new_method`, `new_property`, `del_property`, `set_property`, `set_method`, and
+`get_property`. Properties have the special feature of referencing any kind of
+object type. They can be static or dynamic values. Like namespacing, the naming
+convention does not have to follow Python object name limitation. In the
+following example, both static and dynamic value types can be found.
 ```
     def demo_def(value):
         return 1+value
 
-    demo_list = ['1', '2', '3']
 
     ROOT.new_property("value", 1)
     ROOT.value
@@ -154,7 +153,16 @@ static and dynamic value types can be found.
     ROOT.new_property("dynamic_value", demo_def(3))
     ROOT.dynamic_value
     >>> 4
-    ROOT.new_property(
+    ROOT.new_method("method", demo_def, [3])
+    ROOT.method()
+    >>> 3
+    demo_list = [1, 2, 3]
+    ROOT.new_method("sum", sum, [demo_list])
+    ROOT.sum()
+    >>> 6
+    demo_list = [4, 5, 6]
+    ROOT.sum()
+    >>> 15
 ```
 
 ### Bulk Properties
@@ -175,19 +183,12 @@ value of `None` is assigned.
 ```
 
 ## Building Large Datastructures (new as of v0.1.0 beta1)
-Bootstrapping properties in a datastructures with PyDOM is made easier by using
-the `build_schema` method and `DOMSchema` objects. Start by creating an schema
-object, and giving it some structure.
-```
-    schema = DOMSchema()
-    schema.children = {
-## Building Large Datastructures (new as of v0.1.0 beta1)
-Bootstrapping properties for datastructures with PyDOM is made easier by using
+Bootstrapping properties for datastructures with DOMObjects is made easier by using
 the DOMObject's `build_schema` method and `DOMSchema` objects. Start by creating an schema
 object, and giving it some structure.
 ``` 
-    schemaB = DOMSchema()
-    schemaB.children = {
+    schema = DOMSchema()
+    schema.children = {
         "child_1": {
         	"props": {
 			    "A": {
@@ -232,34 +233,12 @@ object, and giving it some structure.
 	}
     }	
 ```
+
 Next generate the above schema. To do so, call the `build_schema` method on the required context.
 In this example, we'll use the root object.
 
 ```
     ROOT.build_schema(schema)
-    schemaB.dictgroups = {
-    	"group_1": {}
-    	"group_2": {
-    		"children": {
-			"subchild_1": {
-				"props": {
-					"A": {
-						"cast": int,
-						"default": 3
-					}
-				}
-			},
-			"subchild_2": {},
-			"subchild_3": {}
-    		}
-	}
-    }	
-```
-Next generate the above schema. To do so, call the `build_schema` method on the required context.
-In this example, we'll use the root object.
-
-```
-    ROOT.build_schema(schemaB)
     ROOT.child_1.A
     >>> 1
     ROOT.child_2.A

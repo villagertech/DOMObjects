@@ -1,4 +1,5 @@
-* v0.1.0b4 - DOMObject.new_method: Addition of dynamic properties
+* v0.1.0b4 - Addition of dynamic properties
+            DOMObject.new_method: Addition of dynamic properties
             DOMObject.set_method: Addition of dynamic properties
 
 * v0.1.0b3 - Project renamed to DOMObjects
