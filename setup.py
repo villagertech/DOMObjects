@@ -19,7 +19,7 @@ def read(*filenames, **kwargs):
     return sep.join(buf)
 
 
-long_description = read('README.md', 'CHANGES.md')
+long_description = read('README.md')
 
 
 class PyTest(TestCommand):
@@ -52,7 +52,7 @@ setup(
     description='Create Python DOM style datastructures with ease.',
     long_description=long_description,
     package_dir={"": "src"},
-    packages=setuptools.find_packages(where="src"),
+    packages=find_packages(where="src"),
     include_package_data=True,
     test_suite='',
     classifiers=[
