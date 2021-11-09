@@ -7,3 +7,4 @@
 **/tests/
 dist/
 src/DOMObjects.egg-info/
+build/

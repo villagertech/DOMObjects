@@ -19,7 +19,7 @@ def read(*filenames, **kwargs):
     return sep.join(buf)
 
 
-long_description = read('README.md')
+long_description = read('README.rst')
 
 
 class PyTest(TestCommand):
@@ -61,7 +61,7 @@ setup(
         'Natural Language :: English',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT',
+        'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent'
         ],
     extras_require={
