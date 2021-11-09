@@ -4,4 +4,5 @@
 *.sublime-project
 *.pyc
 **/__pycache__/
-**/tests/dist/
+**/tests/
+dist/
