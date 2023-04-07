@@ -182,11 +182,12 @@ following example, both static and dynamic value types can be found.
      ROOT.new_property("dynamic_value", demo_def(3))
      ROOT.dynamic_value
      >>> 4
-     ROOT.new_method("method", demo_def, [3])
+     ROOT.new_method(name="method", method=demo_def, [3])
      ROOT.method()
      >>> 3
      demo_list = [1, 2, 3]
-     ROOT.new_method("sum", sum, [demo_list])
+     # Use the python built-in 'sum'
+     ROOT.new_method(name="sum", method=sum, margs=[demo_list])
      ROOT.sum()
      >>> 6
      demo_list = [4, 5, 6]
