@@ -33,8 +33,20 @@ schema.dictgroups = {
     "event_log": {}
 }
 
+subschema = DOMObjects.schema.DOMSchema(path="controls")
+subschema.children = {
+    "objects": {
+        "props": {
+            "value": {"cast": int}
+        }
+    }
+}
+
 # import pdb; pdb.set_trace()  # breakpoint 58de246a //
 rootDom.build_schema(schema)
+rootDom.build_schema(subschema)
+
 print(rootDom.children)
+print(rootDom.controls.children)
 print(rootDom.settings.children)
 print(rootDom.settings.app.props)

@@ -193,6 +193,8 @@ class DOMFlags(object):
             @param flags [int] Bit mask to set
             @returns [bool] True on success
         """
+        # @bug There is potentially a bug here, but the fix
+        #     it got wiped out. :C
         if not self.protected and self.has_flag(name):
             self.__flags__[name] = flags
             return True

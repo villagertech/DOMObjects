@@ -22,6 +22,7 @@ class DOMSchema(object):
         }
     """
     def __init__(self,
+                 path: str = None,
                  children: dict = {},
                  dictgroups: dict = {},
                  props: dict = {}):
@@ -31,6 +32,7 @@ class DOMSchema(object):
             @params props [dict] Default structure of properties
             @returns [DOMSchema] object
         """
+        self.path = path
         self.dictgroups = dictgroups
         self.children = children
         self.props = props

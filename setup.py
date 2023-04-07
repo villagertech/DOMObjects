@@ -36,7 +36,7 @@ class PyTest(TestCommand):
 
 setup(
     name='DOMObjects',
-    version='v0.1.0b4',
+    version='v0.1.0b7',
     url='https://github.com/villagertech/DOMObjects',
     project_urls={
         "Bug Tracker": 'https://github.com/villagertech/DOMObjects/issues'

@@ -4,7 +4,7 @@ from warnings import warn
 __author__ = "Rob MacKinnon <rome@villagertech.com>"
 __package__ = "DOMObjects"
 __name__ = "__init__"
-__version__ = "0.1.0b4"
+__version__ = "0.1.0b7"
 __license__ = "MIT"
 
 __doc__ = """
@@ -329,6 +329,8 @@ class DOMObject(object):
             @param margs [list] Method arguments to pass
             @returns [None]
         """
+        # @bug There is potentially a bug here, but the fix
+        #     it got wiped out. :C
         if not self.__name_exists__(name):
             warn("Attempted to set non-existent property method '%s', running `new_method` method." % name)
             self.new_method(*args, **kwargs)
@@ -408,7 +410,7 @@ class DOMObject(object):
             @returns None
         """
         if self.__name_exists__(name):
-            raise(AssertionError("child '%s' exists" % name))
+            raise(AssertionError("child '%s' in path '%s' exists" % (name, self.path)))
         _instance = self.__new_child__(name)
         self.__update_parent__(instance=_instance, parent=self)
         _instance.__flags__.update_flag("self", FLAG_NAMESPACE)
@@ -550,11 +552,16 @@ class DOMObject(object):
                 # workType is None or not in ["children", "dictgroups", "props"]
                 warn("Schema key `%s` not supported." % _workType)
 
-        __recurse(ctx=self, node=schemaObj.children, workType="children")
-        __recurse(ctx=self, node=schemaObj.dictgroups, workType="dictgroups")
+        _ctx = self
+        if (schemaObj.path != None) and (schemaObj.path.split('.')[0] != self.name):
+            # set ctx object to path
+            _ctx = self.get_context(schemaObj.path)
+
+        __recurse(ctx=_ctx, node=schemaObj.children, workType="children")
+        __recurse(ctx=_ctx, node=schemaObj.dictgroups, workType="dictgroups")
 
         if len(schemaObj.props.keys()) > 0:
-            __build_props(schemaObj.props, self)
+            __build_props(schemaObj.props, _ctx)
 
 
 class DOMRootObject(DOMObject):

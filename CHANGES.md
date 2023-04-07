@@ -1,3 +1,7 @@
+* v0.1.0b7 - Bug fix for set_namespace and flags.update_flag
+             Fix for set_method, missing args
+             DOMSchema.path: Feature addition of prop for context path handling
+
 * v0.1.0b4 - Addition of dynamic properties
             DOMObject.new_method: Addition of dynamic properties
             DOMObject.set_method: Addition of dynamic properties
