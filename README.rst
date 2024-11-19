@@ -354,3 +354,8 @@ Examples
 
     # Try getting a Node's object path
     print(sub_child.path)
+
+----------------------------
+Development
+----------------------------
+Additional development, extension, fixes, and PRs welcome.

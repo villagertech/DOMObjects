@@ -36,7 +36,7 @@ class PyTest(TestCommand):
 
 setup(
     name='DOMObjects',
-    version='v0.1.0b7',
+    version='v0.1.0',
     url='https://github.com/villagertech/DOMObjects',
     project_urls={
         "Bug Tracker": 'https://github.com/villagertech/DOMObjects/issues'
@@ -57,12 +57,13 @@ setup(
     test_suite='',
     classifiers=[
         'Programming Language :: Python',
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Natural Language :: English',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
-        'Operating System :: OS Independent'
+        'Operating System :: OS Independent',
+        'Topic :: Software Development :: Object Brokering'
         ],
     extras_require={
         'testing': ['pytest'],

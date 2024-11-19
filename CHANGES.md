@@ -1,3 +1,13 @@
+* v0.1.0   - Release from beta
+            Fix: Set defaults for set_method margs and mkwargs
+            Fix: Defined named expansion of keywords for set_method for
+                non-existent prop, and set flags on existing method when
+                updating.
+            Fix: Return default flags where flags are unset.
+
+* v0.1.0b8 - Addition of flag setting on properties, to allow for creation
+             of R/O objects.
+
 * v0.1.0b7 - Bug fix for set_namespace and flags.update_flag
              Fix for set_method, missing args
              DOMSchema.path: Feature addition of prop for context path handling

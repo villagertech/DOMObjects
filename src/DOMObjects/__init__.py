@@ -4,7 +4,7 @@ from warnings import warn
 __author__ = "Rob MacKinnon <rome@villagertech.com>"
 __package__ = "DOMObjects"
 __name__ = "__init__"
-__version__ = "0.1.0b7"
+__version__ = "0.1.0b8"
 __license__ = "MIT"
 
 __doc__ = """
@@ -322,21 +322,25 @@ class DOMObject(object):
 
     def set_method(self, name: str,
                    method: object,
-                   margs: list, mkwargs: dict) -> None:
+                   margs: list = [],
+                   mkwargs: dict = {},
+                   flags: int = 0 | FLAG_READ | FLAG_WRITE) -> None:
         """ @abstract Set the value of a property method by name
             @param name [str] DOM property name
             @param method [object] Method to attach
             @param margs [list] Method arguments to pass
+            @param flags [int] Byte mask for flags
             @returns [None]
         """
         # @bug There is potentially a bug here, but the fix
         #     it got wiped out. :C
         if not self.__name_exists__(name):
             warn("Attempted to set non-existent property method '%s', running `new_method` method." % name)
-            self.new_method(*args, **kwargs)
+            self.new_method(name, method, margs, mkwargs, flags)
         else:
             assert (self.__flags__.test_bit(name, FLAG_WRITE) is True)
             self.__store__[name] = lambda: method(*margs, **mkwargs)
+            self.__flags__.set_flag(name, flags)
 
     def get_property(self, propName: str) -> object:
         """ @abstract Retrieve a specific property by name.
@@ -495,6 +499,11 @@ class DOMObject(object):
                 _value = _map[_key]["cast"]()
                 if "default" in _map[_key]:
                     _value = _map[_key]["default"]
+
+                if "flags" in _map[_key]:
+                    _flags = _map[_key]["flags"]
+                else:
+                    _flags = 0 | FLAG_READ | FLAG_WRITE
 
                 _ctx.new_property(_key, _value)
 
